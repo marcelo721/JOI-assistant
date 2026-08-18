@@ -9,5 +9,4 @@ public class NevaBackEndApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(NevaBackEndApplication.class, args);
 	}
-
 }
