@@ -1,4 +1,4 @@
-package com.marcelo271.neva_back_end.domain.model.enums;
+package com.marcelo271.neva_back_end.user.enums;
 
 public enum Role {
     USER,

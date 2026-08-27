@@ -1,4 +1,4 @@
-package com.marcelo271.neva_back_end.domain.model.entities;
+package com.marcelo271.neva_back_end.user.entities;
 
 import java.util.UUID;
 
