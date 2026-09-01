@@ -2,7 +2,6 @@ package com.marcelo271.neva_back_end.chat.controller;
 
 
 import com.marcelo271.neva_back_end.chat.dto.ChatRequest;
-import com.marcelo271.neva_back_end.chat.dto.ChatResponse;
 import com.marcelo271.neva_back_end.chat.service.ChatService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,10 +17,8 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @PostMapping
-    public ChatResponse chat(
-            @RequestBody ChatRequest request
-    ) {
-        return chatService.chat(request);
+    @PostMapping("/chat")
+    public Object chat(@RequestBody ChatRequest request) {
+        return chatService.process(request);
     }
 }

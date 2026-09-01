@@ -1,8 +1,8 @@
-package com.marcelo271.neva_back_end.conversation.repository;
+package com.marcelo271.neva_back_end.chat.conversation.repository;
 
 
-import com.marcelo271.neva_back_end.conversation.entity.Conversation;
-import com.marcelo271.neva_back_end.conversation.entity.Message;
+import com.marcelo271.neva_back_end.chat.conversation.entity.Conversation;
+import com.marcelo271.neva_back_end.chat.conversation.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

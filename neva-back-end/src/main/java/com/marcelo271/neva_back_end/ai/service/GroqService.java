@@ -23,10 +23,7 @@ public class GroqService {
     }
 
     public String chat(List<GroqMessage> messages) {
-
-        GroqChatRequest request =
-                new GroqChatRequest(model, messages);
-
+        GroqChatRequest request = new GroqChatRequest(model, messages);
         GroqChatResponse response = webClient.post()
                 .uri("/chat/completions")
                 .header(

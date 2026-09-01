@@ -1,4 +1,4 @@
-package com.marcelo271.neva_back_end.conversation.entity;
+package com.marcelo271.neva_back_end.chat.conversation.entity;
 
 import com.marcelo271.neva_back_end.JOI.entities.JOI;
 import jakarta.persistence.*;
@@ -14,6 +14,9 @@ public class Conversation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(name = "is_active")
+    private boolean active;
 
     @ManyToOne
     @JoinColumn(name = "device_id", nullable = false)
@@ -53,5 +56,13 @@ public class Conversation {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

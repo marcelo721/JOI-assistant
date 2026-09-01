@@ -1,10 +1,9 @@
-package com.marcelo271.neva_back_end.conversation.entity;
+package com.marcelo271.neva_back_end.chat.conversation.entity;
 
 import com.marcelo271.neva_back_end.user.enums.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @Entity
