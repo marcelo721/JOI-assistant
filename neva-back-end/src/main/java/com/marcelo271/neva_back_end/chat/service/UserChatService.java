@@ -30,7 +30,6 @@ public class UserChatService {
     private final GroqService groqService;
     private final PersonalityCatalog personalityCatalog;
 
-
     public UserChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,

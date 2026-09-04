@@ -1,0 +1,514 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Teste WebSocket - JOI</title>
+
+    <!-- STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.1.1/bundles/stomp.umd.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 700px;
+            max-width: 95%;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            background: #ddd;
+        }
+
+        .connected {
+            background: #c8f7c5;
+            color: #176b14;
+        }
+
+        .disconnected {
+            background: #ffcaca;
+            color: #8b0000;
+        }
+
+        .messages {
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+
+        .sent {
+            background: #dceeff;
+        }
+
+        .received {
+            background: #e4f7df;
+        }
+
+        .error {
+            background: #ffdede;
+            color: #900;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        #connectButton {
+            background: #333;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        #sendButton {
+            background: #007bff;
+            color: white;
+        }
+
+        #sendButton:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Teste WebSocket - JOI</h1>
+
+    <div id="status" class="status disconnected">
+        ● Desconectado
+    </div>
+
+    <button id="connectButton">
+        Conectar
+    </button>
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-area">
+
+        <input
+                id="messageInput"
+                type="text"
+                placeholder="Digite uma mensagem para a JOI..."
+                disabled
+        >
+
+        <button
+                id="sendButton"
+                disabled
+        >
+            Enviar
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+    // ==========================================
+    // CONFIGURAÇÃO
+    // ==========================================
+
+    const SOCKET_URL = "ws://localhost:8080/ws/JOI";
+
+    const SEND_DESTINATION = "/app/JOI";
+
+    const SUBSCRIBE_DESTINATION = "/topic/JOI";
+
+
+    // ==========================================
+    // ELEMENTOS DA PÁGINA
+    // ==========================================
+
+    const statusElement =
+        document.getElementById("status");
+
+    const connectButton =
+        document.getElementById("connectButton");
+
+    const sendButton =
+        document.getElementById("sendButton");
+
+    const messageInput =
+        document.getElementById("messageInput");
+
+    const messagesElement =
+        document.getElementById("messages");
+
+
+    // ==========================================
+    // CLIENTE STOMP
+    // ==========================================
+
+    const client = new StompJs.Client({
+
+        brokerURL: SOCKET_URL,
+
+        reconnectDelay: 5000,
+
+        debug: function (str) {
+            console.log("[STOMP]", str);
+        }
+
+    });
+
+
+    // ==========================================
+    // QUANDO CONECTAR
+    // ==========================================
+
+    client.onConnect = function (frame) {
+
+        console.log("Conectado:", frame);
+
+        setConnected(true);
+
+        addMessage(
+            "Sistema",
+            "Conectado ao WebSocket!",
+            "received"
+        );
+
+
+        // ======================================
+        // SUBSCRIBE
+        // ======================================
+
+        client.subscribe(
+            SUBSCRIBE_DESTINATION,
+
+            function (message) {
+
+                console.log(
+                    "Mensagem recebida:",
+                    message.body
+                );
+
+                try {
+
+                    const response =
+                        JSON.parse(message.body);
+
+                    addMessage(
+                        "JOI",
+                        JSON.stringify(
+                            response,
+                            null,
+                            2
+                        ),
+                        "received"
+                    );
+
+                } catch (error) {
+
+                    addMessage(
+                        "JOI",
+                        message.body,
+                        "received"
+                    );
+                }
+
+            }
+        );
+
+    };
+
+
+    // ==========================================
+    // ERRO STOMP
+    // ==========================================
+
+    client.onStompError = function (frame) {
+
+        console.error(
+            "Erro STOMP:",
+            frame.headers["message"]
+        );
+
+        console.error(
+            "Detalhes:",
+            frame.body
+        );
+
+        addMessage(
+            "Erro",
+            frame.body,
+            "error"
+        );
+    };
+
+
+    // ==========================================
+    // ERRO WEBSOCKET
+    // ==========================================
+
+    client.onWebSocketError = function (error) {
+
+        console.error(
+            "Erro WebSocket:",
+            error
+        );
+
+        addMessage(
+            "Erro",
+            "Erro na conexão WebSocket.",
+            "error"
+        );
+
+    };
+
+
+    // ==========================================
+    // CONECTAR / DESCONECTAR
+    // ==========================================
+
+    connectButton.addEventListener(
+        "click",
+        function () {
+
+            if (!client.active) {
+
+                console.log(
+                    "Conectando..."
+                );
+
+                client.activate();
+
+            } else {
+
+                client.deactivate();
+
+                setConnected(false);
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // ENVIAR MENSAGEM
+    // ==========================================
+
+    sendButton.addEventListener(
+        "click",
+        sendMessage
+    );
+
+
+    // Permitir ENTER
+    messageInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                sendMessage();
+
+            }
+
+        }
+    );
+
+
+    function sendMessage() {
+
+        const text =
+            messageInput.value.trim();
+
+        if (!text) {
+            return;
+        }
+
+        if (!client.connected) {
+
+            addMessage(
+                "Erro",
+                "WebSocket não está conectado.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // MONTA O ChatRequest
+        // ======================================
+
+        const chatRequest = {
+            JOIId: 1,
+            message: text
+
+        };
+
+
+        console.log(
+            "Enviando:",
+            chatRequest
+        );
+
+
+        // ======================================
+        // ENVIA PARA /app/JOI
+        // ======================================
+
+        client.publish({
+
+            destination: SEND_DESTINATION,
+
+            body: JSON.stringify(
+                chatRequest
+            )
+
+        });
+
+
+        addMessage(
+            "Você",
+            text,
+            "sent"
+        );
+
+
+        messageInput.value = "";
+
+    }
+
+
+    // ==========================================
+    // ALTERAR STATUS
+    // ==========================================
+
+    function setConnected(connected) {
+
+        if (connected) {
+
+            statusElement.textContent =
+                "● Conectado";
+
+            statusElement.className =
+                "status connected";
+
+            connectButton.textContent =
+                "Desconectar";
+
+            messageInput.disabled =
+                false;
+
+            sendButton.disabled =
+                false;
+
+        } else {
+
+            statusElement.textContent =
+                "● Desconectado";
+
+            statusElement.className =
+                "status disconnected";
+
+            connectButton.textContent =
+                "Conectar";
+
+            messageInput.disabled =
+                true;
+
+            sendButton.disabled =
+                true;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // ADICIONAR MENSAGEM NA TELA
+    // ==========================================
+
+    function addMessage(
+        sender,
+        text,
+        type
+    ) {
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "message " + type;
+
+        message.textContent =
+            sender + ":\n" + text;
+
+        messagesElement.appendChild(
+            message
+        );
+
+        messagesElement.scrollTop =
+            messagesElement.scrollHeight;
+
+    }
+
+</script>
+
+</body>
+</html>
+```
