@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AzureTextToSpeechService implements TextToSpeechService {
 
-    private static final String LANGUAGE = "pt-BR";
-    private static final String VOICE = "pt-BR-Luana:MAI-Voice-2";
+    private static final String LANGUAGE = "en-US";
+    private static final String VOICE = "en-US-Harper:MAI-Voice-2";
 
     private final SpeechConfig speechConfig;
     private final SpeechSynthesizer synthesizer;

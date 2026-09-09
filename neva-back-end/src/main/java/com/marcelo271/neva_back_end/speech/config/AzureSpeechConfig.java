@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AzureSpeechConfig {
 
-    @Value("AZURE_API")
+    @Value("${AZURE_API}")
     private String key;
 
-    @Value("AZURE_REGION")
+    @Value("${AZURE_REGION}")
     private String region;
 
     public String getKey() {

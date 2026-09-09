@@ -28,6 +28,7 @@ public class AzureSpeechToTextService implements SpeechToTextService {
         );
 
         speechConfig.setSpeechRecognitionLanguage("pt-BR");
+        System.out.println(azureSpeechConfig.getRegion());
 
         Path tempFile = null;
 
