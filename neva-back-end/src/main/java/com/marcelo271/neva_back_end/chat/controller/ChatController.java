@@ -24,9 +24,7 @@ public class ChatController {
 
     @PostMapping("/chat")
     public ResponseEntity<?> chat(@RequestBody ChatRequest request) {
-
         try {
-
             Object result = chatService.process(request);
             if (result instanceof byte[] audio) {
                 return ResponseEntity.ok()
@@ -36,7 +34,6 @@ public class ChatController {
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-
             return ResponseEntity.internalServerError()
                     .body("Erro ao processar mensagem: " + e.getMessage());
         }

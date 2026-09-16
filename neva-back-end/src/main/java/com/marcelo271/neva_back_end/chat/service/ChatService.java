@@ -18,6 +18,7 @@ public class ChatService {
     private final TextToSpeechService textToSpeechService;
     public final TtsMqttService ttsMqttService;
 
+
     public ChatService(
             IntentService intentService,
             UserChatService userChatService,
@@ -35,7 +36,6 @@ public class ChatService {
     public Object process(ChatRequest request) {
 
         Intent intent = intentService.classify(request.message());
-
         if (intent == Intent.COMMAND) {
             return deviceCommandService.executeCommand(request.JOIId(), request.message());
         }
@@ -48,43 +48,6 @@ public class ChatService {
         } catch (MqttException e) {
             throw new RuntimeException("Erro ao enviar áudio via MQTT", e);
         }
-        return response;
-    }
-
-    public Object process2(ChatRequest request) {
-
-        Intent intent = intentService.classify(request.message());
-
-        if (intent == Intent.COMMAND) {
-            return deviceCommandService.executeCommand(
-                    request.JOIId(),
-                    request.message()
-            );
-        }
-
-        ChatResponse response =
-                userChatService.chat(request);
-
-        byte[] audio =
-                textToSpeechService.synthesize(
-                        response.message()
-                );
-
-        try {
-
-            ttsMqttService.sendAudio(
-                    request.JOIId(),
-                    audio
-            );
-
-        } catch (MqttException e) {
-
-            throw new RuntimeException(
-                    "Erro ao enviar áudio via MQTT",
-                    e
-            );
-        }
-
         return response;
     }
 }

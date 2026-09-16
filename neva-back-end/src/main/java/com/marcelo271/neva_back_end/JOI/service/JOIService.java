@@ -13,17 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class JOIService {
 
     private final JOIRepository joiRepository;
-    private final IntentService intentService;
-    private final UserChatService chatService;
-    private final DeviceCommandService deviceCommandService;
 
-    public JOIService(JOIRepository joiRepository, IntentService intentService,
-                      UserChatService chatService, DeviceCommandService deviceCommandService) {
+    public JOIService(JOIRepository joiRepository) {
         this.joiRepository = joiRepository;
-        this.chatService = chatService;
-        this.deviceCommandService = deviceCommandService;
-        this.intentService = intentService;
-
     }
 
     @Transactional

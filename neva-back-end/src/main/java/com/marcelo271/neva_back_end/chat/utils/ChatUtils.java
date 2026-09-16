@@ -4,9 +4,7 @@ import com.marcelo271.neva_back_end.JOI.personality.PersonalityDefinition;
 
 public class ChatUtils {
 
-    public static String buildSystemPrompt(
-            PersonalityDefinition personality
-    ) {
+    public static String buildSystemPrompt(PersonalityDefinition personality) {
 
         return """
                 You are JOI, a personal AI assistant.

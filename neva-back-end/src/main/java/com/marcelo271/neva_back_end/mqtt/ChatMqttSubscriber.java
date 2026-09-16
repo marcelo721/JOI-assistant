@@ -46,7 +46,7 @@ public class ChatMqttSubscriber {
                                 ChatRequest.class
                         );
 
-                chatService.process2(request);
+                chatService.process(request);
 
             } catch (Exception e) {
 

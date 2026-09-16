@@ -1,6 +1,5 @@
 package com.marcelo271.neva_back_end.mqtt.config;
 
-
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -19,11 +18,7 @@ public class MqttConfig {
 
     @Bean
     public MqttClient mqttClient() throws MqttException {
-
-        MqttClient client = new MqttClient(
-                broker,
-                clientId
-        );
+        MqttClient client = new MqttClient(broker, clientId);
 
         MqttConnectOptions options = new MqttConnectOptions();
         options.setAutomaticReconnect(true);

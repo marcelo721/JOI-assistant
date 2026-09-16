@@ -5,8 +5,7 @@ public class DeviceCommandUtils {
     private DeviceCommandUtils() {
     }
 
-    public static String buildSystemPrompt(
-            ) {
+    public static String buildSystemPrompt() {
 
         return """
                 You are JOI, a personal AI assistant responsible

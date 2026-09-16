@@ -1,15 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Teste WebSocket - JOI</title>
-
-    <!-- STOMP -->
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.1.1/bundles/stomp.umd.min.js"></script>
+    <title>NEVA MQTT Tester</title>
 
     <style>
         * {
@@ -19,108 +14,87 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: #111827;
+            color: #f9fafb;
         }
 
         .container {
-            width: 700px;
-            max-width: 95%;
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
         }
 
         h1 {
-            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #d1d5db;
+        }
+
+        input,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        input,
+        textarea {
+            background: #374151;
+            color: white;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1d4ed8;
         }
 
         .status {
             padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            background: #ddd;
-        }
-
-        .connected {
-            background: #c8f7c5;
-            color: #176b14;
-        }
-
-        .disconnected {
-            background: #ffcaca;
-            color: #8b0000;
-        }
-
-        .messages {
-            height: 350px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
             border-radius: 8px;
+            background: #374151;
+            margin-bottom: 15px;
+        }
+
+        #logs {
+            background: #111827;
             padding: 15px;
-            margin-bottom: 15px;
-            background: #fafafa;
-        }
-
-        .message {
-            padding: 10px;
-            margin-bottom: 10px;
             border-radius: 8px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
             white-space: pre-wrap;
-        }
-
-        .sent {
-            background: #dceeff;
-        }
-
-        .received {
-            background: #e4f7df;
-        }
-
-        .error {
-            background: #ffdede;
-            color: #900;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        #connectButton {
-            background: #333;
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        #sendButton {
-            background: #007bff;
-            color: white;
-        }
-
-        #sendButton:disabled {
-            background: #aaa;
-            cursor: not-allowed;
         }
     </style>
 </head>
@@ -129,386 +103,72 @@
 
 <div class="container">
 
-    <h1>Teste WebSocket - JOI</h1>
+    <h1>NEVA MQTT Tester</h1>
 
-    <div id="status" class="status disconnected">
-        ● Desconectado
+    <div class="subtitle">
+        Simulador de ESP32 para testar o chat e o TTS
     </div>
 
-    <button id="connectButton">
-        Conectar
-    </button>
+    <div class="card">
 
-    <div id="messages" class="messages"></div>
+        <h2>MQTT</h2>
 
-    <div class="input-area">
+        <label>Broker WebSocket</label>
 
         <input
-                id="messageInput"
-                type="text"
-                placeholder="Digite uma mensagem para a JOI..."
-                disabled
+            id="broker"
+            value="ws://localhost:9001"
+            placeholder="ws://localhost:9001"
         >
 
-        <button
-                id="sendButton"
-                disabled
+        <label>Device ID</label>
+
+        <input
+            id="deviceId"
+            value="1"
         >
-            Enviar
+
+        <button onclick="connectMQTT()">
+            Conectar
         </button>
+
+        <div id="status" class="status">
+            🔴 Desconectado
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Enviar mensagem</h2>
+
+        <label>Mensagem</label>
+
+        <textarea
+            id="message"
+            placeholder="Digite uma mensagem para a NEVA..."
+        ></textarea>
+
+        <button onclick="sendMessage()">
+            Enviar para NEVA
+        </button>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Logs</h2>
+
+        <div id="logs"></div>
 
     </div>
 
 </div>
 
-<script>
+<!-- MQTT.js -->
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
-    // ==========================================
-    // CONFIGURAÇÃO
-    // ==========================================
-
-    const SOCKET_URL = "ws://localhost:8080/ws/JOI";
-
-    const SEND_DESTINATION = "/app/JOI";
-
-    const SUBSCRIBE_DESTINATION = "/topic/JOI";
-
-
-    // ==========================================
-    // ELEMENTOS DA PÁGINA
-    // ==========================================
-
-    const statusElement =
-        document.getElementById("status");
-
-    const connectButton =
-        document.getElementById("connectButton");
-
-    const sendButton =
-        document.getElementById("sendButton");
-
-    const messageInput =
-        document.getElementById("messageInput");
-
-    const messagesElement =
-        document.getElementById("messages");
-
-
-    // ==========================================
-    // CLIENTE STOMP
-    // ==========================================
-
-    const client = new StompJs.Client({
-
-        brokerURL: SOCKET_URL,
-
-        reconnectDelay: 5000,
-
-        debug: function (str) {
-            console.log("[STOMP]", str);
-        }
-
-    });
-
-
-    // ==========================================
-    // QUANDO CONECTAR
-    // ==========================================
-
-    client.onConnect = function (frame) {
-
-        console.log("Conectado:", frame);
-
-        setConnected(true);
-
-        addMessage(
-            "Sistema",
-            "Conectado ao WebSocket!",
-            "received"
-        );
-
-
-        // ======================================
-        // SUBSCRIBE
-        // ======================================
-
-        client.subscribe(
-            SUBSCRIBE_DESTINATION,
-
-            function (message) {
-
-                console.log(
-                    "Mensagem recebida:",
-                    message.body
-                );
-
-                try {
-
-                    const response =
-                        JSON.parse(message.body);
-
-                    addMessage(
-                        "JOI",
-                        JSON.stringify(
-                            response,
-                            null,
-                            2
-                        ),
-                        "received"
-                    );
-
-                } catch (error) {
-
-                    addMessage(
-                        "JOI",
-                        message.body,
-                        "received"
-                    );
-                }
-
-            }
-        );
-
-    };
-
-
-    // ==========================================
-    // ERRO STOMP
-    // ==========================================
-
-    client.onStompError = function (frame) {
-
-        console.error(
-            "Erro STOMP:",
-            frame.headers["message"]
-        );
-
-        console.error(
-            "Detalhes:",
-            frame.body
-        );
-
-        addMessage(
-            "Erro",
-            frame.body,
-            "error"
-        );
-    };
-
-
-    // ==========================================
-    // ERRO WEBSOCKET
-    // ==========================================
-
-    client.onWebSocketError = function (error) {
-
-        console.error(
-            "Erro WebSocket:",
-            error
-        );
-
-        addMessage(
-            "Erro",
-            "Erro na conexão WebSocket.",
-            "error"
-        );
-
-    };
-
-
-    // ==========================================
-    // CONECTAR / DESCONECTAR
-    // ==========================================
-
-    connectButton.addEventListener(
-        "click",
-        function () {
-
-            if (!client.active) {
-
-                console.log(
-                    "Conectando..."
-                );
-
-                client.activate();
-
-            } else {
-
-                client.deactivate();
-
-                setConnected(false);
-
-            }
-
-        }
-    );
-
-
-    // ==========================================
-    // ENVIAR MENSAGEM
-    // ==========================================
-
-    sendButton.addEventListener(
-        "click",
-        sendMessage
-    );
-
-
-    // Permitir ENTER
-    messageInput.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Enter") {
-
-                sendMessage();
-
-            }
-
-        }
-    );
-
-
-    function sendMessage() {
-
-        const text =
-            messageInput.value.trim();
-
-        if (!text) {
-            return;
-        }
-
-        if (!client.connected) {
-
-            addMessage(
-                "Erro",
-                "WebSocket não está conectado.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ======================================
-        // MONTA O ChatRequest
-        // ======================================
-
-        const chatRequest = {
-            JOIId: 1,
-            message: text
-
-        };
-
-
-        console.log(
-            "Enviando:",
-            chatRequest
-        );
-
-
-        // ======================================
-        // ENVIA PARA /app/JOI
-        // ======================================
-
-        client.publish({
-
-            destination: SEND_DESTINATION,
-
-            body: JSON.stringify(
-                chatRequest
-            )
-
-        });
-
-
-        addMessage(
-            "Você",
-            text,
-            "sent"
-        );
-
-
-        messageInput.value = "";
-
-    }
-
-
-    // ==========================================
-    // ALTERAR STATUS
-    // ==========================================
-
-    function setConnected(connected) {
-
-        if (connected) {
-
-            statusElement.textContent =
-                "● Conectado";
-
-            statusElement.className =
-                "status connected";
-
-            connectButton.textContent =
-                "Desconectar";
-
-            messageInput.disabled =
-                false;
-
-            sendButton.disabled =
-                false;
-
-        } else {
-
-            statusElement.textContent =
-                "● Desconectado";
-
-            statusElement.className =
-                "status disconnected";
-
-            connectButton.textContent =
-                "Conectar";
-
-            messageInput.disabled =
-                true;
-
-            sendButton.disabled =
-                true;
-
-        }
-
-    }
-
-
-    // ==========================================
-    // ADICIONAR MENSAGEM NA TELA
-    // ==========================================
-
-    function addMessage(
-        sender,
-        text,
-        type
-    ) {
-
-        const message =
-            document.createElement("div");
-
-        message.className =
-            "message " + type;
-
-        message.textContent =
-            sender + ":\n" + text;
-
-        messagesElement.appendChild(
-            message
-        );
-
-        messagesElement.scrollTop =
-            messagesElement.scrollHeight;
-
-    }
-
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
-```
