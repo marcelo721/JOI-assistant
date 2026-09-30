@@ -4,6 +4,7 @@ import com.marcelo271.neva_back_end.mqtt.TtsMqttService;
 import com.marcelo271.neva_back_end.speech.config.AzureSpeechConfig;
 import com.marcelo271.neva_back_end.speech.interfaces.TextToSpeechService;
 import com.microsoft.cognitiveservices.speech.*;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
 
 
@@ -30,9 +31,11 @@ public class AzureTextToSpeechService implements TextToSpeechService {
         synthesizer.Synthesizing.addEventListener
                 ((sender, event) -> handleAudioChunk(event));
 
-        synthesizer.SynthesisCanceled.addEventListener(
-                (sender, event) -> handleSynthesisCanceled(event)
+
+        synthesizer.SynthesisCompleted.addEventListener(
+                (sender, event) -> handleSynthesisCompleted()
         );
+
     }
 
     public synchronized void synthesizeAndStream(Long deviceId, String text){
@@ -98,6 +101,20 @@ public class AzureTextToSpeechService implements TextToSpeechService {
 
     @Override
     public byte[] synthesize(String text) {
-        return new byte[0];
+        SpeechSynthesisResult result = synthesizer.SpeakText(text);
+        try {
+            if (result.getReason() == ResultReason.SynthesizingAudioCompleted){
+                return result.getAudioData();
+            }
+            throw new RuntimeException("Falha ao sintetizar audio" + result.getReason());
+        }finally {
+            result.close();
+        }
+    }
+
+    @PreDestroy
+    public void shutdown(){
+        synthesizer.close();
+        speechConfig.close();
     }
 }

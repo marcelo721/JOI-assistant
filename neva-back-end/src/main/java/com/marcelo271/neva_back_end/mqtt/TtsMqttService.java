@@ -4,55 +4,106 @@ import com.marcelo271.neva_back_end.mqtt.publisher.MqttPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-
 @Service
 public class TtsMqttService {
+
+    private static final int MQTT_CHUNK_SIZE = 1024;
+
     private final MqttPublisher mqttPublisher;
 
-    public TtsMqttService(MqttPublisher mqttPublisher) {
+    public TtsMqttService(
+            MqttPublisher mqttPublisher
+    ) {
         this.mqttPublisher = mqttPublisher;
     }
 
-    public void sendAudio(
-            Long deviceId,
-            byte[] audio
-    ) throws MqttException {
+    public void startAudio(Long deviceId)
+            throws MqttException {
 
-        String baseTopic =
-                "neva/" + deviceId + "/audio/tts";
+        String topic =
+                "joi/" + deviceId + "/audio/tts/start";
 
         mqttPublisher.publish(
-                baseTopic + "/start",
+                topic,
                 "START",
                 1
         );
 
-        int chunkSize = 1024;
+        System.out.println(
+                "TTS START -> " + topic
+        );
+    }
 
-        for (int i = 0; i < audio.length; i += chunkSize) {
+    public void sendChunk(
+            Long deviceId,
+            byte[] audioChunk
+    ) throws MqttException {
 
-            int end = Math.min(
-                    i + chunkSize,
-                    audio.length
-            );
+        if (
+                audioChunk == null ||
+                        audioChunk.length == 0
+        ) {
+            return;
+        }
 
-            byte[] chunk = Arrays.copyOfRange(
-                    audio,
-                    i,
-                    end
+        String topic =
+                "joi/" + deviceId + "/audio/tts/data";
+
+        for (
+                int offset = 0;
+                offset < audioChunk.length;
+                offset += MQTT_CHUNK_SIZE
+        ) {
+
+            int remaining =
+                    audioChunk.length - offset;
+
+            int size =
+                    Math.min(
+                            MQTT_CHUNK_SIZE,
+                            remaining
+                    );
+
+            byte[] chunk =
+                    new byte[size];
+
+            System.arraycopy(
+                    audioChunk,
+                    offset,
+                    chunk,
+                    0,
+                    size
             );
 
             mqttPublisher.publish(
-                    baseTopic + "/data",
+                    topic,
                     chunk,
                     1
             );
+
+            System.out.println(
+                    "MQTT chunk enviado: "
+                            + size
+                            + " bytes"
+            );
         }
+    }
+
+    public void endAudio(
+            Long deviceId
+    ) throws MqttException {
+
+        String topic =
+                "joi/" + deviceId + "/audio/tts/end";
+
         mqttPublisher.publish(
-                baseTopic + "/end",
+                topic,
                 "END",
                 1
+        );
+
+        System.out.println(
+                "TTS END -> " + topic
         );
     }
 }

@@ -7,7 +7,7 @@ public class ChatUtils {
     public static String buildSystemPrompt(PersonalityDefinition personality) {
 
         return """
-                You are JOI, a personal AI assistant.
+                You are JOY, a personal AI assistant.
 
                 PERSONALITY:
                 %s

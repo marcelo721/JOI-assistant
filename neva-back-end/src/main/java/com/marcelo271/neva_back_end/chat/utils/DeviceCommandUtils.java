@@ -8,7 +8,7 @@ public class DeviceCommandUtils {
     public static String buildSystemPrompt() {
 
         return """
-                You are JOI, a personal AI assistant responsible
+                You are JOY, a personal AI assistant responsible
                 for controlling physical devices.
 
                 PERSONALITY:
