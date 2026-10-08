@@ -1,7 +1,7 @@
 # JOI — Intelligent Voice Assistant Backend 🤖
 
 <p align="center">
-  <strong>Backend responsável pela inteligência, comunicação e processamento do JOI.</strong>
+  <strong>Backend responsável pela inteligência, comunicação e processamento da JOI.</strong>
 </p>
 
 <p align="center">
