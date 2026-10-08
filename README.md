@@ -358,56 +358,6 @@ DATABASE_PASSWORD=your_password
 
 ---
 
-## 🚀 Running the Project
-
-### Requirements
-
-Make sure you have installed:
-
-* Java 21+
-* Maven
-* PostgreSQL
-* MQTT Broker (Mosquitto recommended)
-* Git
-
-Clone the repository:
-
-```bash
-git clone https://github.com/your-username/joi-backend.git
-cd joi-backend
-```
-
-Build the project:
-
-```bash
-./mvnw clean install
-```
-
-Run the application:
-
-```bash
-./mvnw spring-boot:run
-```
-
-On Windows:
-
-```bash
-mvnw.cmd spring-boot:run
-```
-
----
-
-## 🐳 Running with Docker
-
-The project can also be executed using Docker.
-
-```bash
-docker compose up --build
-```
-
-This allows the backend infrastructure to be started together with its required services.
-
----
 
 ## 📂 Project Structure
 
